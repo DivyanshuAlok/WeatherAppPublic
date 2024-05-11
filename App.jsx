@@ -52,6 +52,31 @@ const completeDay = day => {
   }
 };
 
+const requestLocationPermission = async () => {
+  try {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      {
+        title: 'MyTracker Location Permission',
+        message:
+          'MyTracker needs access to your location services ' +
+          'for its basic funtionality.',
+        buttonNegative: 'Cancel',
+        buttonPositive: 'OK',
+      },
+    );
+    if (PermissionsAndroid.RESULTS.GRANTED === granted) {
+      console.log('Location permission Accessible');
+      return true;
+    } else {
+      console.log('Location permission Denied');
+      return false;
+    }
+  } catch (err) {
+    console.warn(err);
+  }
+};
+
 const App = () => {
   const [locPermission, setLocPermission] = useState(false);
   const [location, setLocation] = useState({});
@@ -59,48 +84,6 @@ const App = () => {
   const [currentCondition, setCurrentCondition] = useState({});
   const [forecast, setForecast] = useState([]);
   const [selectedDate, setSelectedDate] = useState({});
-
-  const requestLocationPermission = async () => {
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        {
-          title: 'MyTracker Location Permission',
-          message:
-            'MyTracker needs access to your location services ' +
-            'for its basic funtionality.',
-          buttonNegative: 'Cancel',
-          buttonPositive: 'OK',
-        },
-      );
-      if (PermissionsAndroid.RESULTS.GRANTED === granted) {
-        setLocPermission(true);
-        console.log('Location permission exist');
-        Geolocation.getCurrentPosition(ret => {
-          console.log('ret ', ret);
-          setLocation({
-            lat: ret.coords.latitude,
-            lng: ret.coords.longitude,
-            timestamp: ret.timestamp,
-          });
-          // console.log('location info', location);
-          fetchRegion(
-            {
-              lat: ret.coords.latitude,
-              lng: ret.coords.longitude,
-              timestamp: ret.timestamp,
-            },
-            apiKey,
-          );
-        });
-      } else {
-        setLocPermission(false);
-        console.log('Location permission Denied');
-      }
-    } catch (err) {
-      console.warn(err);
-    }
-  };
 
   const fetchRegion = async (location, apiKey) => {
     fetch(
@@ -210,9 +193,26 @@ const App = () => {
   };
 
   useEffect(() => {
-    console.log('height : ', windowHeight);
-    console.log('Width  : ', windowWidth);
-    requestLocationPermission();
+    requestLocationPermission().then(permission => {
+      setLocPermission(permission);
+      Geolocation.getCurrentPosition(ret => {
+        console.log('ret ', ret);
+        setLocation({
+          lat: ret.coords.latitude,
+          lng: ret.coords.longitude,
+          timestamp: ret.timestamp,
+        });
+        // console.log('location info', location);
+        fetchRegion(
+          {
+            lat: ret.coords.latitude,
+            lng: ret.coords.longitude,
+            timestamp: ret.timestamp,
+          },
+          apiKey,
+        );
+      });
+    });
   }, []);
 
   const refresh = () => {
