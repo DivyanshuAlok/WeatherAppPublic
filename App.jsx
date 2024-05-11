@@ -98,7 +98,7 @@ const App = () => {
     )
       .then(response => response.json())
       .then(data => {
-        console.log(data);
+        // console.log(data);
         // console.log(
         //   'location API : ',
         //   data.Key,
@@ -118,8 +118,16 @@ const App = () => {
             ', ' +
             data.Country.LocalizedName,
         });
-        fetchCurrentCondition(data.Key, apiKey);
-        futureForecast(data.Key, apiKey);
+        Promise.all([
+          fetchCurrentCondition(data.Key, apiKey),
+          futureForecast(data.Key, apiKey),
+        ])
+          .then(() => {
+            console.log('fetched all data');
+          })
+          .catch(() => {
+            console.log('some error');
+          });
       })
       .catch(error => {
         console.error(error);
@@ -127,7 +135,7 @@ const App = () => {
   };
 
   const fetchCurrentCondition = async (locationKey, apiKey) => {
-    console.log('Fetch fetchCurrentCondition');
+    // console.log('Fetch fetchCurrentCondition');
     fetch(
       `http://dataservice.accuweather.com/currentconditions/v1/${locationKey}?apikey=${apiKey}&details=true`,
       {
@@ -195,6 +203,7 @@ const App = () => {
   useEffect(() => {
     requestLocationPermission().then(permission => {
       setLocPermission(permission);
+
       Geolocation.getCurrentPosition(ret => {
         console.log('ret ', ret);
         setLocation({
@@ -203,6 +212,7 @@ const App = () => {
           timestamp: ret.timestamp,
         });
         // console.log('location info', location);
+
         fetchRegion(
           {
             lat: ret.coords.latitude,
