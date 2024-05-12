@@ -84,6 +84,7 @@ const App = () => {
   const [currentCondition, setCurrentCondition] = useState({});
   const [forecast, setForecast] = useState([]);
   const [selectedDate, setSelectedDate] = useState({});
+  const [maxHeight, setMaxHeight] = useState();
 
   const fetchRegion = async (location, apiKey) => {
     fetch(
@@ -248,6 +249,9 @@ const App = () => {
     const borderWidth = item.date === selectedDate.date ? 1 : 0;
     return (
       <TouchableOpacity
+        onLayout={event => {
+          event.nativeEvent.layout.height;
+        }}
         onPress={() => {
           setSelectedDate({...item});
         }}>
@@ -446,7 +450,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   otherForecast: {
-    flex: 2,
+    flex: 2.2,
     marginBottom: rh(10),
     alignItems: 'stretch',
     justifyContent: 'center',
