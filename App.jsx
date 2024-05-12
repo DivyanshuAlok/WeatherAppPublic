@@ -249,9 +249,6 @@ const App = () => {
     const borderWidth = item.date === selectedDate.date ? 1 : 0;
     return (
       <TouchableOpacity
-        onLayout={event => {
-          event.nativeEvent.layout.height;
-        }}
         onPress={() => {
           setSelectedDate({...item});
         }}>
